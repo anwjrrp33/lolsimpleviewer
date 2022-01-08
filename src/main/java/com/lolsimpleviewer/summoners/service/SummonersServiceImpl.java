@@ -25,7 +25,8 @@ public class SummonersServiceImpl implements SummonersService {
                 .path(name.replaceAll(" ", "%20"))
                 .queryParam("api_key", key);
 
-        // System.out.println(restTemplate.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), String.class));
+        // 추후 DTO로 변환
+        // restTemplate.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), String.class);
 
         return restTemplate.getForObject(builder.toUriString(), Summoners.class);
     }
