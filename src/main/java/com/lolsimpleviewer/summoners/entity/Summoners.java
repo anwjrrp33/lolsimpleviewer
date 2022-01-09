@@ -1,14 +1,13 @@
 package com.lolsimpleviewer.summoners.entity;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import java.math.BigInteger;
-
-@Entity
+@Document
 @Builder
 @Getter
 @AllArgsConstructor
