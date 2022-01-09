@@ -8,10 +8,13 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 
 @SpringBootApplication
-@EnableAutoConfiguration(exclude = {
-		DataSourceAutoConfiguration.class,
-		MongoAutoConfiguration.class,
-		MongoDataAutoConfiguration.class })
+// @EnableAutoConfiguration(exclude = {
+// 		DataSourceAutoConfiguration.class,
+// 		MongoAutoConfiguration.class,
+// 		MongoDataAutoConfiguration.class })
+// @EnableAutoConfiguration(exclude = {
+// 	DataSourceAutoConfiguration.class
+// })
 public class LolsimpleviewerApplication {
 
 	public static void main(String[] args) {
