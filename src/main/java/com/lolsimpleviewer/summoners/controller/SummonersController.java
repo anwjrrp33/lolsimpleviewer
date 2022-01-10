@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 @RestController
@@ -22,8 +24,14 @@ public class SummonersController {
 
     private final SummonersService summonersService;
 
-    @GetMapping("/name/{name}")
-    public ResponseEntity<Summoners> name(@PathVariable(value = "name") String name) {
+    @GetMapping(value = "/name/{name}")
+    public ResponseEntity<Summoners> name(@PathVariable(value = "name") String name) throws Exception {
+        System.out.println("name: " + name);
+        name = URLEncoder.encode(name, "utf-8");
+        System.out.println("name: " + name);
+        name = URLEncoder.encode(name, "utf-8");
+        System.out.println("name: " + name);
+
         return new ResponseEntity<>(summonersService.getDetail(name), HttpStatus.OK);
     }
 }
