@@ -16,6 +16,7 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -37,7 +38,7 @@ public class SummonersServiceImpl implements SummonersService {
 
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(
                     "https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/")
-                .path(name.replaceAll(" ", "%20"))
+                .path(Arrays.stream(name.split(" ")).map(URLEncoder::encode).collect(Collectors.joining("%20")))
                 .queryParam("api_key", key);
 
             summoners = restTemplate.getForObject(builder.toUriString(), Summoners.class);
