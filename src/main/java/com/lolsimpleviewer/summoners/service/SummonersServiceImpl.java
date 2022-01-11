@@ -12,8 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -27,24 +30,19 @@ public class SummonersServiceImpl implements SummonersService {
     @Override
     public Summoners getDetail(String name) {
 
-        RestTemplate restTemplate = new RestTemplate();
+        Summoners summoners = summonersRepository.findByName(name);
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/")
+        if(summoners == null) {
+            RestTemplate restTemplate = new RestTemplate();
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(
+                    "https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/")
                 .path(name.replaceAll(" ", "%20"))
                 .queryParam("api_key", key);
 
-        // 추후 DTO로 변환
-        // restTemplate.exchange(builder.toUriString(), HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), String.class);
-
-        Summoners summoners = restTemplate.getForObject(builder.toUriString(), Summoners.class);
-
-        //System.out.println(summonersRepository.findAllById(summoners.getId()).toString());
-
-        // summonersRepository.insert(summoners);
-
-        // List<Summoners> list = summonersRepository.findAll();
-
-        // System.out.println(list.toString());
+            summoners = restTemplate.getForObject(builder.toUriString(), Summoners.class);
+            summonersRepository.insert(summoners);
+        }
 
         return summoners;
     }

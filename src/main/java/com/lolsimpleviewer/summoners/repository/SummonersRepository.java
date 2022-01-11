@@ -5,5 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface SummonersRepository extends MongoRepository<Summoners, String> {
 
-    Summoners findAllById(String id);
+    Summoners findByName(String name);
 }

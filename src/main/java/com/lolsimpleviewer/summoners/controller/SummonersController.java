@@ -26,12 +26,6 @@ public class SummonersController {
 
     @GetMapping(value = "/name/{name}")
     public ResponseEntity<Summoners> name(@PathVariable(value = "name") String name) throws Exception {
-        System.out.println("name: " + name);
-        name = URLEncoder.encode(name, "utf-8");
-        System.out.println("name: " + name);
-        name = URLEncoder.encode(name, "utf-8");
-        System.out.println("name: " + name);
-
         return new ResponseEntity<>(summonersService.getDetail(name), HttpStatus.OK);
     }
 }
