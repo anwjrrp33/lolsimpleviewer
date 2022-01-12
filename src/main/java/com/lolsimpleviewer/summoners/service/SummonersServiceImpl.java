@@ -4,20 +4,16 @@ import com.lolsimpleviewer.summoners.entity.Summoners;
 import com.lolsimpleviewer.summoners.repository.SummonersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URLEncoder;
+import java.net.http.HttpHeaders;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -36,12 +32,13 @@ public class SummonersServiceImpl implements SummonersService {
         if(summoners == null) {
             RestTemplate restTemplate = new RestTemplate();
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(
-                    "https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/")
-                .path(Arrays.stream(name.split(" ")).map(URLEncoder::encode).collect(Collectors.joining("%20")))
-                .queryParam("api_key", key);
+            UriComponents builder = UriComponentsBuilder.fromHttpUrl("https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/")
+                    .path(name)
+                    .queryParam("api_key", key)
+                    .encode(StandardCharsets.UTF_8)
+                    .build();
 
-            summoners = restTemplate.getForObject(builder.toUriString(), Summoners.class);
+            summoners = restTemplate.getForObject(builder.toUri(), Summoners.class);
             summonersRepository.insert(summoners);
         }
 
