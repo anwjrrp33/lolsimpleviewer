@@ -22,7 +22,6 @@ public class SummonersServiceImpl implements SummonersService {
 
     @Override
     public Summoners getDetail(String name) {
-
         Summoners summoners = summonersRepository.findByName(name);
 
         if(summoners == null) {
