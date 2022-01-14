@@ -53,6 +53,8 @@ public class SummonersServiceImpl implements SummonersService {
 
         List<League> leagueList = restTemplate.getForObject(builder.toUri(), new ArrayList<League>().getClass());
 
+        League league = leagueList.get(0);
+
         return summoners;
     }
 }
