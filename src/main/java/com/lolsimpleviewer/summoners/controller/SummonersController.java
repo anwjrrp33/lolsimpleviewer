@@ -1,5 +1,6 @@
 package com.lolsimpleviewer.summoners.controller;
 
+import com.lolsimpleviewer.summoners.dto.SummonersDTO;
 import com.lolsimpleviewer.summoners.entity.Summoners;
 import com.lolsimpleviewer.summoners.service.SummonersService;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class SummonersController {
     private final SummonersService summonersService;
 
     @GetMapping(value = "/name/{name}")
-    public ResponseEntity<Summoners> name(@PathVariable(value = "name") String name) throws Exception {
+    public ResponseEntity<SummonersDTO> name(@PathVariable(value = "name") String name) throws Exception {
         return new ResponseEntity<>(summonersService.getDetail(name), HttpStatus.OK);
     }
 }

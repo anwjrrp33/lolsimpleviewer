@@ -14,6 +14,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.lolsimpleviewer.league.entity.League;
+import com.lolsimpleviewer.summoners.dto.SummonersDTO;
 import com.lolsimpleviewer.summoners.entity.Summoners;
 import com.lolsimpleviewer.summoners.repository.SummonersRepository;
 
@@ -29,13 +30,15 @@ public class SummonersServiceImpl implements SummonersService {
     private final SummonersRepository summonersRepository;
 
     @Override
-    public Summoners getDetail(String name) {
+    public SummonersDTO getDetail(String name) {
         Summoners summoners = summonersRepository.findByNameIgnoreCase(name);
 
         RestTemplate restTemplate = new RestTemplate();
 
+        UriComponents builder;
+
         if(summoners == null) {
-            UriComponents builder = UriComponentsBuilder.fromHttpUrl("https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/")
+            builder = UriComponentsBuilder.fromHttpUrl("https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/")
                     .path(name)
                     .queryParam("api_key", key)
                     .encode(StandardCharsets.UTF_8)
@@ -45,16 +48,34 @@ public class SummonersServiceImpl implements SummonersService {
             summonersRepository.insert(summoners);
         }
 
-        UriComponents builder = UriComponentsBuilder.fromHttpUrl("https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/")
+        builder = UriComponentsBuilder.fromHttpUrl("https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/")
             .path(summoners.getId())
             .queryParam("api_key", key)
-            .encode(StandardCharsets.UTF_8)
             .build();
 
         List<League> leagueList = restTemplate.getForObject(builder.toUri(), new ArrayList<League>().getClass());
 
-        League league = leagueList.get(0);
+        League league = new League();
 
-        return summoners;
+        for (League l: leagueList) {
+            if("RANKED_SOLO_5x5".equals(league.getQueueType())) {
+                league = l;
+            }
+        }
+
+        SummonersDTO summonersDTO = SummonersDTO.builder()
+            .summonerName(summoners.getName())
+            .profileIconUrl("")
+            .summonerLevel(summoners.getSummonerLevel())
+            .queueType("")
+            .tier("")
+            .tierImgUrl("")
+            .rank("")
+            .leaguePoints(0L)
+            .wins(0L)
+            .losses(0L)
+            .winRatio(0L).build();
+
+        return summonersDTO;
     }
 }

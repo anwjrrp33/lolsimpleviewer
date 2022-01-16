@@ -10,11 +10,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 public class SummonersDTO {
-	private String id;
-	private String accountId;
-	private String puuid;
-	private String name;
-	private Long profileIconId;
-	private Long revisionDate;
+	private String summonerName;
+	private String profileIconUrl;
 	private Long summonerLevel;
+	private String queueType;
+	private String tier;
+	private String tierImgUrl;
+	private String rank;
+	private Long leaguePoints;
+	private Long wins;
+	private Long losses;
+	private Long winRatio;
 }
