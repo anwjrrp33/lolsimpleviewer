@@ -1,18 +1,24 @@
 package com.lolsimpleviewer.summoners.service;
 
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.Objects;
 
+import org.bson.json.JsonObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsimpleviewer.league.entity.League;
 import com.lolsimpleviewer.summoners.dto.SummonersDTO;
 import com.lolsimpleviewer.summoners.entity.Summoners;
@@ -53,28 +59,33 @@ public class SummonersServiceImpl implements SummonersService {
             .queryParam("api_key", key)
             .build();
 
-        List<League> leagueList = restTemplate.getForObject(builder.toUri(), new ArrayList<League>().getClass());
+        ArrayList list = restTemplate.getForObject(builder.toUri(), ArrayList.class);
+        List<League> leagueList = new ObjectMapper().convertValue(list, new TypeReference<List<League>>() {});
 
         League league = new League();
 
         for (League l: leagueList) {
-            if("RANKED_SOLO_5x5".equals(league.getQueueType())) {
+            if("RANKED_SOLO_5x5".equals(l.getQueueType())) {
                 league = l;
             }
         }
 
+        builder = UriComponentsBuilder.fromHttpUrl("https://ddragon.leagueoflegends.com/realms/na.json").build();
+
+        Map naMap = restTemplate.getForObject(builder.toUri(), HashMap.class);
+
         SummonersDTO summonersDTO = SummonersDTO.builder()
             .summonerName(summoners.getName())
-            .profileIconUrl("")
+            .profileIconUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("profileicon") + "/img/profileicon/" + summoners.getProfileIconId() + ".png")
             .summonerLevel(summoners.getSummonerLevel())
-            .queueType("")
-            .tier("")
+            .queueType(league.getQueueType())
+            .tier(league.getTier())
             .tierImgUrl("")
-            .rank("")
-            .leaguePoints(0L)
-            .wins(0L)
-            .losses(0L)
-            .winRatio(0L).build();
+            .rank(league.getRank())
+            .leaguePoints(league.getLeaguePoints())
+            .wins(league.getWins())
+            .losses(league.getLosses())
+            .winRatio(league.getWins() == null || league.getLosses() == null ? null : league.getWins() * 100 / (league.getWins() + league.getLosses())).build();
 
         return summonersDTO;
     }
