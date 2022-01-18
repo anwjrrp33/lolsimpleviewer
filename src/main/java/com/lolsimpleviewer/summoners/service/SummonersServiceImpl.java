@@ -59,8 +59,8 @@ public class SummonersServiceImpl implements SummonersService {
             .queryParam("api_key", key)
             .build();
 
-        ArrayList list = restTemplate.getForObject(builder.toUri(), ArrayList.class);
-        List<League> leagueList = new ObjectMapper().convertValue(list, new TypeReference<List<League>>() {});
+        ArrayList leagueArr = restTemplate.getForObject(builder.toUri(), ArrayList.class);
+        List<League> leagueList = new ObjectMapper().convertValue(leagueArr, new TypeReference<List<League>>() {});
 
         League league = new League();
 
@@ -86,6 +86,15 @@ public class SummonersServiceImpl implements SummonersService {
             .wins(league.getWins())
             .losses(league.getLosses())
             .winRatio(league.getWins() == null || league.getLosses() == null ? null : league.getWins() * 100 / (league.getWins() + league.getLosses())).build();
+
+        builder = UriComponentsBuilder.fromHttpUrl("https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/")
+                .path(summoners.getPuuid() + "/ids")
+                .queryParam("start", 0)
+                .queryParam("count", 20)
+                .queryParam("api_key", key)
+                .build();
+
+        ArrayList matchArr = restTemplate.getForObject(builder.toUri(), ArrayList.class);
 
         return summonersDTO;
     }
