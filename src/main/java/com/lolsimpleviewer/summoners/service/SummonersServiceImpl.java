@@ -1,30 +1,30 @@
 package com.lolsimpleviewer.summoners.service;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import org.bson.json.JsonObject;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsimpleviewer.league.entity.League;
 import com.lolsimpleviewer.summoners.dto.SummonersDTO;
 import com.lolsimpleviewer.summoners.entity.Summoners;
 import com.lolsimpleviewer.summoners.repository.SummonersRepository;
-
 import lombok.RequiredArgsConstructor;
+import org.apache.http.client.methods.HttpPost;
+import org.bson.json.JsonObject;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -95,6 +95,20 @@ public class SummonersServiceImpl implements SummonersService {
                 .build();
 
         ArrayList matchArr = restTemplate.getForObject(builder.toUri(), ArrayList.class);
+        ArrayList matchList = new ArrayList();
+
+        builder = UriComponentsBuilder.fromHttpUrl("https://asia.api.riotgames.com/lol/match/v5/matches/")
+                .path(matchArr.get(0).toString())
+                .queryParam("api_key", key)
+                .build();
+
+        try {
+            // ResponseEntity<Object[]> responseEntity = restTemplate.getForEntity(builder.toUri(), Object[].class);
+            restTemplate.exchange(builder.toUri(), HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), String.class).getBody();
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+
 
         return summonersDTO;
     }
