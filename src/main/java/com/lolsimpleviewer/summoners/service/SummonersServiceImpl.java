@@ -1,12 +1,14 @@
 package com.lolsimpleviewer.summoners.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsimpleviewer.league.entity.League;
 import com.lolsimpleviewer.summoners.dto.SummonersDTO;
 import com.lolsimpleviewer.summoners.entity.Summoners;
 import com.lolsimpleviewer.summoners.repository.SummonersRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.connector.Response;
 import org.apache.http.client.methods.HttpPost;
 import org.bson.json.JsonObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -103,8 +105,10 @@ public class SummonersServiceImpl implements SummonersService {
                 .build();
 
         try {
+            System.out.println(restTemplate.getForEntity(builder.toUri(), JsonNode.class).toString());
             // ResponseEntity<Object[]> responseEntity = restTemplate.getForEntity(builder.toUri(), Object[].class);
-            restTemplate.exchange(builder.toUri(), HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), String.class).getBody();
+            //restTemplate.exchange(builder.toUri(), HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), JsonObject[].class);
+            //restTemplate.getForEntity("https://asia.api.riotgames.com/lol/match/v5/matches/KR_5700361925?api_key=RGAPI-cc5fbca3-6dc5-49bc-942c-044ee81a99d7", String.class);
         } catch (Exception ex) {
             System.out.println(ex);
         }
