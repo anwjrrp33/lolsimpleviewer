@@ -4,24 +4,18 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lolsimpleviewer.league.entity.League;
+import com.lolsimpleviewer.match.dto.MatchDTO;
 import com.lolsimpleviewer.summoners.dto.SummonersDTO;
 import com.lolsimpleviewer.summoners.entity.Summoners;
 import com.lolsimpleviewer.summoners.repository.SummonersRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.connector.Response;
-import org.apache.http.client.methods.HttpPost;
-import org.bson.json.JsonObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -92,27 +86,27 @@ public class SummonersServiceImpl implements SummonersService {
         builder = UriComponentsBuilder.fromHttpUrl("https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/")
                 .path(summoners.getPuuid() + "/ids")
                 .queryParam("start", 0)
-                .queryParam("count", 20)
+                .queryParam("count", 5)
                 .queryParam("api_key", key)
                 .build();
 
         ArrayList matchArr = restTemplate.getForObject(builder.toUri(), ArrayList.class);
-        ArrayList matchList = new ArrayList();
+        ArrayList<JsonNode> matchList = new ArrayList<JsonNode>();
+        List<MatchDTO> matchDTOList = new ArrayList<>();
 
-        builder = UriComponentsBuilder.fromHttpUrl("https://asia.api.riotgames.com/lol/match/v5/matches/")
-                .path(matchArr.get(0).toString())
-                .queryParam("api_key", key)
-                .build();
+        for(int i = 0; i < matchArr.size(); i++) {
+            builder = UriComponentsBuilder.fromHttpUrl("https://asia.api.riotgames.com/lol/match/v5/matches/")
+                    .path(matchArr.get(i).toString())
+                    .queryParam("api_key", key)
+                    .build();
 
-        try {
-            System.out.println(restTemplate.getForEntity(builder.toUri(), JsonNode.class).toString());
-            // ResponseEntity<Object[]> responseEntity = restTemplate.getForEntity(builder.toUri(), Object[].class);
-            //restTemplate.exchange(builder.toUri(), HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), JsonObject[].class);
-            //restTemplate.getForEntity("https://asia.api.riotgames.com/lol/match/v5/matches/KR_5700361925?api_key=RGAPI-cc5fbca3-6dc5-49bc-942c-044ee81a99d7", String.class);
-        } catch (Exception ex) {
-            System.out.println(ex);
+            JsonNode jsonNode = restTemplate.getForEntity(builder.toUri(), JsonNode.class).getBody();
+            matchList.add(jsonNode);
+
+            MatchDTO matchDTO = MatchDTO.builder()
+                    .matchId(matchArr.get(i).toString())
+                    .build();
         }
-
 
         return summonersDTO;
     }
