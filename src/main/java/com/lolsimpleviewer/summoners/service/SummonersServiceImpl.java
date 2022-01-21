@@ -105,6 +105,15 @@ public class SummonersServiceImpl implements SummonersService {
 
             MatchDTO matchDTO = MatchDTO.builder()
                     .matchId(matchArr.get(i).toString())
+                    .itemImgUrls(new String[] {
+                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item0") + ".png",
+                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item1") + ".png",
+                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item2") + ".png",
+                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item3") + ".png",
+                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item4") + ".png",
+                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item5") + ".png",
+                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item6") + ".png"
+                    })
                     .build();
         }
 
