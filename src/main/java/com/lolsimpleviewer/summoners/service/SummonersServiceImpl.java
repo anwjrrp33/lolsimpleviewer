@@ -103,6 +103,8 @@ public class SummonersServiceImpl implements SummonersService {
             JsonNode jsonNode = restTemplate.getForEntity(builder.toUri(), JsonNode.class).getBody();
             matchList.add(jsonNode);
 
+            // System.out.println(jsonNode.get("info").findValues("participants").get(0));
+
             MatchDTO matchDTO = MatchDTO.builder()
                     .matchId(matchArr.get(i).toString())
                     .itemImgUrls(new String[] {
@@ -114,6 +116,8 @@ public class SummonersServiceImpl implements SummonersService {
                             naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item5") + ".png",
                             naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item6") + ".png"
                     })
+                    //.victory(Boolean.parseBoolean(jsonNode.get("info").get("participants").get("win").toString()))
+                    //.kills(jsonNode.get("info").get("participants").get("kills").longValue())
                     .build();
         }
 
