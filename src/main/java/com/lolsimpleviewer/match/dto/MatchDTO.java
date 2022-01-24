@@ -1,9 +1,6 @@
 package com.lolsimpleviewer.match.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
@@ -12,6 +9,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@ToString
 public class MatchDTO {
     private String matchId;
     private String[] itemImgUrls;

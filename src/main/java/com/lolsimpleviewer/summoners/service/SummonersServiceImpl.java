@@ -9,18 +9,18 @@ import com.lolsimpleviewer.summoners.dto.SummonersDTO;
 import com.lolsimpleviewer.summoners.entity.Summoners;
 import com.lolsimpleviewer.summoners.repository.SummonersRepository;
 import lombok.RequiredArgsConstructor;
+import org.bson.json.JsonObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -94,6 +94,12 @@ public class SummonersServiceImpl implements SummonersService {
         ArrayList<JsonNode> matchList = new ArrayList<JsonNode>();
         List<MatchDTO> matchDTOList = new ArrayList<>();
 
+        // Spell
+        builder = UriComponentsBuilder.fromHttpUrl("https://ddragon.leagueoflegends.com/cdn/" + ((Map) naMap.get("n")).get("summoner") + "/data/ko_KR/summoner.json").build();
+        JsonNode summonerJson = restTemplate.getForEntity(builder.toUri(), JsonNode.class).getBody();
+        List<JsonNode> spells = new ArrayList<>();
+        summonerJson.get("data").elements().forEachRemaining(spells::add);
+
         for(int i = 0; i < matchArr.size(); i++) {
             builder = UriComponentsBuilder.fromHttpUrl("https://asia.api.riotgames.com/lol/match/v5/matches/")
                     .path(matchArr.get(i).toString())
@@ -103,21 +109,41 @@ public class SummonersServiceImpl implements SummonersService {
             JsonNode jsonNode = restTemplate.getForEntity(builder.toUri(), JsonNode.class).getBody();
             matchList.add(jsonNode);
 
-            // System.out.println(jsonNode.get("info").findValues("participants").get(0));
+            List<JsonNode> participants = new ObjectMapper().convertValue(jsonNode.get("info").get("participants"), new TypeReference<List<JsonNode>>() {});
+            String summonersName = summoners.getName();
+            JsonNode value = participants.stream()
+                    .filter(participant -> summonersName.equals(participant.get("summonerName").toString().replaceAll("\"", "")))
+                    .findAny()
+                    .orElse(null);
+
+            String summoner1Id = value.get("summoner1Id").toString();
+            String summoner2Id = value.get("summoner2Id").toString();
+            JsonNode spell1 = spells.stream()
+                    .filter(spell -> summoner1Id.equals(spell.get("key").toString().replaceAll("\"", "")))
+                    .findAny()
+                    .orElse(null);
+            JsonNode spell2 = spells.stream()
+                    .filter(spell -> summoner2Id.equals(spell.get("key").toString().replaceAll("\"", "")))
+                    .findAny()
+                    .orElse(null);
 
             MatchDTO matchDTO = MatchDTO.builder()
                     .matchId(matchArr.get(i).toString())
                     .itemImgUrls(new String[] {
-                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item0") + ".png",
-                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item1") + ".png",
-                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item2") + ".png",
-                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item3") + ".png",
-                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item4") + ".png",
-                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item5") + ".png",
-                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + jsonNode.get("info").get("participants").get("item6") + ".png"
+                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + value.get("item0") + ".png",
+                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + value.get("item1") + ".png",
+                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + value.get("item2") + ".png",
+                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + value.get("item3") + ".png",
+                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + value.get("item4") + ".png",
+                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + value.get("item5") + ".png",
+                            naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("item") + "/img/item/" + value.get("item6") + ".png"
                     })
-                    //.victory(Boolean.parseBoolean(jsonNode.get("info").get("participants").get("win").toString()))
-                    //.kills(jsonNode.get("info").get("participants").get("kills").longValue())
+                    .victory(Boolean.parseBoolean(value.get("win").toString()))
+                    .kills(value.get("kills").longValue())
+                    .assists(value.get("assists").longValue())
+                    .gameDuration(jsonNode.get("info").get("gameDuration").longValue())
+                    .summonerCast1ImgUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("summoner") + "/img/item/" + spell1.get("image").get("full").toString().replaceAll("\"", ""))
+                    .summonerCast2ImgUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("summoner") + "/img/item/" + spell2.get("image").get("full").toString().replaceAll("\"", ""))
                     .build();
         }
 
