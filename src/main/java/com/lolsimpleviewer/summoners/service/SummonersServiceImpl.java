@@ -99,8 +99,22 @@ public class SummonersServiceImpl implements SummonersService {
         JsonNode summonerJson = restTemplate.getForEntity(builder.toUri(), JsonNode.class).getBody();
         List<JsonNode> spells = new ArrayList<>();
         summonerJson.get("data").elements().forEachRemaining(spells::add);
+        // Rune
+        builder = UriComponentsBuilder.fromHttpUrl("https://ddragon.leagueoflegends.com/cdn/" + naMap.get("v") + "/data/ko_KR/runesReforged.json").build();
+        JsonNode runeJson = restTemplate.getForEntity(builder.toUri(), JsonNode.class).getBody();
+        List<JsonNode> runes = new ArrayList<>();
+        runeJson.elements().forEachRemaining(runes::add);
 
-        for(int i = 0; i < matchArr.size(); i++) {
+        List<JsonNode> slots = new ArrayList<>();
+        for(int i = 0; i < runes.size(); i++) {
+            System.out.println(runes.get(i));
+        }
+//        for (JsonNode j: runes) {
+//            System.out.println(j.get("slots").get("runes"));
+//            //j.get("slots").get("runes").elements().forEachRemaining(slots::add);
+//        }
+
+        for(int i = 0; i < 1;/*matchArr.size();*/ i++) {
             builder = UriComponentsBuilder.fromHttpUrl("https://asia.api.riotgames.com/lol/match/v5/matches/")
                     .path(matchArr.get(i).toString())
                     .queryParam("api_key", key)
@@ -127,6 +141,18 @@ public class SummonersServiceImpl implements SummonersService {
                     .findAny()
                     .orElse(null);
 
+            String rune1Id = value.get("perks").get("styles").get(0).get("selections").get(0).get("perk").toString();
+            String rune2Id = value.get("perks").get("styles").get(1).get("style").toString();
+
+            JsonNode rune1 = slots.stream()
+                    .filter(rune -> rune1Id.equals(rune.get("id").toString().replaceAll("\"", "")))
+                    .findAny()
+                    .orElse(null);
+            JsonNode rune2 = runes.stream()
+                    .filter(rune -> rune2Id.equals(rune.get("id").toString().replaceAll("\"", "")))
+                    .findAny()
+                    .orElse(null);
+
             MatchDTO matchDTO = MatchDTO.builder()
                     .matchId(matchArr.get(i).toString())
                     .itemImgUrls(new String[] {
@@ -144,7 +170,13 @@ public class SummonersServiceImpl implements SummonersService {
                     .gameDuration(jsonNode.get("info").get("gameDuration").longValue())
                     .summonerCast1ImgUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("summoner") + "/img/item/" + spell1.get("image").get("full").toString().replaceAll("\"", ""))
                     .summonerCast2ImgUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("summoner") + "/img/item/" + spell2.get("image").get("full").toString().replaceAll("\"", ""))
+                    .mainSpellImgUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("summoner") + "/img/" + rune1.get("icon").toString().replaceAll("\"", ""))
+                    .subSpellImgUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("summoner") + "/img/" + rune1.get("icon").toString().replaceAll("\"", ""))
+                    .goldEarned(value.get("goldEarned").longValue())
+                    .champLevel(value.get("champLevel").longValue())
+                    .championPortraitImgUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("champion") + "/img/champion/" + value.get("championName").toString().replaceAll("\"", "") + ".png")
                     .build();
+
         }
 
         return summonersDTO;
