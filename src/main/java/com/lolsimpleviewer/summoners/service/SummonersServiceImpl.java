@@ -106,15 +106,11 @@ public class SummonersServiceImpl implements SummonersService {
         runeJson.elements().forEachRemaining(runes::add);
 
         List<JsonNode> slots = new ArrayList<>();
-        for(int i = 0; i < runes.size(); i++) {
-            System.out.println(runes.get(i));
+        for (JsonNode j: runes) {
+            j.get("slots").get(0).get("runes").elements().forEachRemaining(slots::add);
         }
-//        for (JsonNode j: runes) {
-//            System.out.println(j.get("slots").get("runes"));
-//            //j.get("slots").get("runes").elements().forEachRemaining(slots::add);
-//        }
 
-        for(int i = 0; i < 1;/*matchArr.size();*/ i++) {
+        for(int i = 0; i < matchArr.size(); i++) {
             builder = UriComponentsBuilder.fromHttpUrl("https://asia.api.riotgames.com/lol/match/v5/matches/")
                     .path(matchArr.get(i).toString())
                     .queryParam("api_key", key)
@@ -168,15 +164,14 @@ public class SummonersServiceImpl implements SummonersService {
                     .kills(value.get("kills").longValue())
                     .assists(value.get("assists").longValue())
                     .gameDuration(jsonNode.get("info").get("gameDuration").longValue())
-                    .summonerCast1ImgUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("summoner") + "/img/item/" + spell1.get("image").get("full").toString().replaceAll("\"", ""))
-                    .summonerCast2ImgUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("summoner") + "/img/item/" + spell2.get("image").get("full").toString().replaceAll("\"", ""))
-                    .mainSpellImgUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("summoner") + "/img/" + rune1.get("icon").toString().replaceAll("\"", ""))
-                    .subSpellImgUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("summoner") + "/img/" + rune1.get("icon").toString().replaceAll("\"", ""))
+                    .summonerCast1ImgUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("summoner") + "/img/spell/" + spell1.get("image").get("full").toString().replaceAll("\"", ""))
+                    .summonerCast2ImgUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("summoner") + "/img/spell/" + spell2.get("image").get("full").toString().replaceAll("\"", ""))
+                    .mainSpellImgUrl(naMap.get("cdn") + "/img/" + rune1.get("icon").toString().replaceAll("\"", ""))
+                    .subSpellImgUrl(naMap.get("cdn") + "/img/" + rune2.get("icon").toString().replaceAll("\"", ""))
                     .goldEarned(value.get("goldEarned").longValue())
                     .champLevel(value.get("champLevel").longValue())
                     .championPortraitImgUrl(naMap.get("cdn") + "/" + ((Map) naMap.get("n")).get("champion") + "/img/champion/" + value.get("championName").toString().replaceAll("\"", "") + ".png")
                     .build();
-
         }
 
         return summonersDTO;
